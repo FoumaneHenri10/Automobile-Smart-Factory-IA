@@ -15,7 +15,7 @@ L'objectif est de détecter en temps réel des anomalies sur une ligne de produc
 2. **Data Gateway / MES (`src/api/`)** : API centrale réceptionnant les flux, archivant les données et déclenchant les diagnostics IA.
 3. **Analytics Engine (`src/analytics/`)** : Modèle de Machine Learning entraîné pour distinguer le comportement normal des pannes imminentes.
 4. **Supervision (`src/dashboard/`)** : Interface visuelle permettant aux opérateurs de visualiser l'état de la ligne.
-
+5. **Assets (`assets`)** : Logo crée
 
 
 ## 🛠️ Technologies Utilisées

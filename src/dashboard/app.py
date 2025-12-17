@@ -5,6 +5,28 @@ import os
 import time
 from datetime import datetime
 
+# DÉFINITION DES FONCTIONS
+def log_intervention():
+    new_log = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "site": "Hauts-de-France",
+        "ligne": "MBG_L1",
+        "statut": "Intervention effectuée"
+    }
+    df_log = pd.DataFrame([new_log])
+    log_file = "data/interventions.csv"
+    
+    if not os.path.exists(log_file):
+        df_log.to_csv(log_file, index=False)
+    else:
+        df_log.to_csv(log_file, mode='a', header=False, index=False)
+
+def get_data():
+    if os.path.exists("data/factory_logs.csv"):
+        df = pd.read_csv("data/factory_logs.csv")
+        return df.tail(50)
+    return pd.DataFrame()
+
 # Configuration de la page
 st.set_page_config(
     page_title="Automobile Smart Factory AI - Dashboard",
@@ -12,33 +34,74 @@ st.set_page_config(
     layout="wide",
 )
 
-# Style CSS personnalisé pour un look "Industrie 4.0"
+# Style CSS pour un look industriel
+# Style CSS Avancé
 st.markdown("""
     <style>
-    .main {
-        background-color: #f5f7f9;
+    /* Fond de l'application */
+    .stApp {
+        background-color: #f8f9fc;
     }
+    
+    /* Titre Principal Ultra Stylisé */
+    .main-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 800;
+        font-size: 3rem !important;
+        color: #1e293b;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        padding-bottom: 20px;
+        border-bottom: 3px solid #FFB81C; /* Ligne jaune Renault */
+        margin-bottom: 30px;
+    }
+
+    /* Cartes de Metrics (Plus lourdes et pro) */
+    [data-testid="stMetricSimpleValue"] {
+        font-size: 2.5rem !important;
+        font-weight: 700 !important;
+        color: #00529B !important; /* Bleu profond */
+    }
+    
     .stMetric {
+        background-color: #ffffff !important;
+        padding: 20px !important;
+        border-radius: 15px !important;
+        border-left: 8px solid #00529B !important; /* Barre d'accent */
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05) !important;
+    }
+
+    /* Style pour le conteneur IA et Action */
+    .status-box {
         background-color: #ffffff;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        height: 100%;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/b/b7/Renault_2021.svg", width=100)
+    # On charge l'image locale
+    logo_path = "assets/logo.png"
+    if os.path.exists(logo_path):
+        st.image(logo_path, width=150)
+    else:
+        # Repli sur un texte si l'image est manquante
+        st.title("🚗 Automobile AI")
+        
     st.title("Contrôle Usine")
-    st.info("📍 Site : Maubeuge\n\n🏭 Ligne : MBG_L1")
+    st.info("📍 Site : Hauts-de-France\n\n🏭 Ligne : MBG_L1")
     st.markdown("---")
-    st.write("📊 **Statut Système :**")
-    st.success("API MES : Connectée")
-    st.success("Modèle IA : Actif")
+    if st.button("🔄 Actualiser Manuellement", key="refresh_sidebar"):
+        st.rerun()
 
 # --- HEADER ---
-st.title("🚗 Ampere ElectriCity - Monitoring Temps Réel")
+# Titre avec classe CSS personnalisée
+st.markdown('<h1 class="main-title">🚗 Automobile Smart Factory AI</h1>', unsafe_allow_html=True)
+st.subheader("Monitoring Temps Réel - Pôle Industriel")
 st.caption(f"Dernière mise à jour : {datetime.now().strftime('%H:%M:%S')}")
 
 # Fonction pour charger les données
@@ -48,55 +111,57 @@ def get_data():
         return df.tail(50)
     return pd.DataFrame()
 
-# --- MAIN LAYOUT ---
-placeholder = st.empty()
+# --- AFFICHAGE ---
+df = get_data()
 
-while True:
-    df = get_data()
+if not df.empty:
+    # 1. KPIs
+    col1, col2, col3, col4 = st.columns(4)
     
-    with placeholder.container():
-        if not df.empty:
-            # 1. KPIs en haut
-            col1, col2, col3, col4 = st.columns(4)
-            
-            last_vib = df['vibration'].iloc[-1]
-            last_temp = df['temperature'].iloc[-1]
-            last_anomaly = df['anomaly_flag'].iloc[-1]
-            
-            col1.metric("Vibration (Hz)", f"{last_vib}", f"{round(last_vib - 10, 2)} vs nom.")
-            col2.metric("Température (°C)", f"{last_temp}", f"{round(last_temp - 65, 2)} vs nom.")
-            
-            with col3:
-                st.write("**Diagnostic IA**")
-                if last_anomaly == 1:
-                    st.error("⚠️ ANOMALIE")
-                else:
-                    st.success("✅ NOMINAL")
-                    
-            with col4:
-                st.write("**Maintenance**")
-                st.button("📦 Log Intervention")
-
-            st.markdown("---")
-
-            # 2. Graphiques
-            c1, c2 = st.columns([2, 1])
-            
-            with c1:
-                st.subheader("Flux de données capteurs")
-                fig = px.line(df, x='timestamp', y=['vibration', 'temperature'],
-                             color_discrete_map={"vibration": "#00529B", "temperature": "#FFB81C"},
-                             template="plotly_white")
-                fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-                st.plotly_chart(fig, use_container_width=True)
-
-            with c2:
-                st.subheader("Historique récent")
-                # Affichage des 10 dernières lignes avec style
-                st.dataframe(df[['timestamp', 'vibration', 'temperature', 'anomaly_flag']].tail(10), 
-                             hide_index=True, use_container_width=True)
-
+    last_vib = df['vibration'].iloc[-1]
+    last_temp = df['temperature'].iloc[-1]
+    last_anomaly = df['anomaly_flag'].iloc[-1]
+    
+    col1.metric("Vibration (Hz)", f"{last_vib}", f"{round(last_vib - 10, 2)} vs nom.")
+    col2.metric("Température (°C)", f"{last_temp}", f"{round(last_temp - 65, 2)} vs nom.")
+    
+    with col3:
+        st.write("**Diagnostic IA**")
+        if last_anomaly == 1:
+            st.error("⚠️ ANOMALIE")
         else:
-            st.warning("⚠️ En attente de flux provenant du système MES... Lancez le simulateur.")
+            st.success("✅ NOMINAL")
             
+    with col4:
+        st.write("**Action**")
+        if st.button("📦 Log Intervention", key="btn_intervention"):
+            log_intervention() # On appelle la fonction
+            st.toast("✅ Rapport envoyé au service Maintenance", icon="🛠️")
+            st.balloons() # Optionnel : petit effet visuel pour la vidéo !
+
+    st.markdown("---")
+
+    # 2. Graphiques
+    c1, c2 = st.columns([2, 1])
+    
+    with c1:
+        st.subheader("Flux de données capteurs")
+        fig = px.line(df, x='timestamp', y=['vibration', 'temperature'],
+                     color_discrete_map={"vibration": "#00529B", "temperature": "#FFB81C"},
+                     template="plotly_white")
+        # Correction width='stretch' pour la nouvelle version de Streamlit
+        st.plotly_chart(fig, width='stretch')
+
+    with c2:
+        st.subheader("Historique récent")
+        st.dataframe(df[['timestamp', 'vibration', 'temperature', 'anomaly_flag']].tail(10), 
+                     hide_index=True, width='stretch')
+
+    # --- AUTO-REFRESH (Toutes les 2 secondes) ---
     time.sleep(2)
+    st.rerun()
+
+else:
+    st.warning("⚠️ En attente de flux provenant du système MES... Lancez le simulateur.")
+    time.sleep(2)
+    st.rerun()
