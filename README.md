@@ -1,6 +1,6 @@
 # 🚗 Automobile Smart Factory IA : Maintenance Prédictive & IoT
 
-Ce projet simule une architecture **Industrie 4.0** complète, conçue pour l'optimisation des processus de production et la maintenance prédictive au sein de l'usine **Ampere ElectriCity (Maubeuge)**.
+Ce projet simule une architecture **Industrie 4.0** complète, conçue pour l'optimisation des processus de production et la maintenance prédictive au sein d'une usine Automobile Electric.
 
 L'objectif est de détecter en temps réel des anomalies sur une ligne de production (vibrations, surchauffes) grâce à une approche **End-to-End** : de l'automate (Edge) au Dashboard (Digital Twin), en passant par une IA d'analyse.
 
