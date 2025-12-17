@@ -26,35 +26,33 @@ L'objectif est de détecter en temps réel des anomalies sur une ligne de produc
 
 ## 🚀 Installation et Utilisation
 
-### 1. Prérequis
 ```bash
+1. Prérequis
+
 pip install -r requirements.txt
-2. Lancement du Système (3 étapes)
+
+2. Lancement du Système (3 étapes) ;
+
 Ouvrez trois terminaux distincts dans VS Code :
 
 Terminal 1 - Le Cerveau (API + IA) :
 
-Bash
-
-python src/api/main.py
+=> python src/api/main.py
 
 Terminal 2 - La Ligne de Production (Simulateur) :
 
-Bash
-
-python src/edge/simulator.py
+=> python src/edge/simulator.py
 
 Terminal 3 - La Supervision (Dashboard) :
 
-Bash
-
-streamlit run src/dashboard/app.py
+=> streamlit run src/dashboard/app.py
 
 📊 Impact pour une entreprise Automobile
+
 Ce projet répond aux enjeux d'une Usine 4.0 en permettant :
 
-Une réduction des arrêts de production non planifiés grâce à la maintenance prédictive.
+- Une réduction des arrêts de production non planifiés grâce à la maintenance prédictive.
 
-Une digitalisation complète des flux de données machines (IoT/MES).
+- Une digitalisation complète des flux de données machines (IoT/MES).
 
-Une aide à la décision pour les équipes de maintenance grâce au diagnostic IA instantané.
+- Une aide à la décision pour les équipes de maintenance grâce au diagnostic IA instantané.
